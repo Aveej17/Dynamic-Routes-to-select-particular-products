@@ -28,10 +28,22 @@ module.exports = class Product {
 
   save() {
     getProductsFromFile(products => {
-      products.push(this);
-      fs.writeFile(p, JSON.stringify(products), err => {
-        console.log(err);
-      });
+      if(this.id){
+        
+        const existingProductIndex = products.findIndex(prod =>prod.id === this.id);
+        const updatedProducts = [...products];
+        updatedProducts[existingProductIndex] = this;
+        fs.writeFile(p, JSON.stringify(updatedProducts), err => {
+          console.log(err);
+        });
+      }
+      else{
+        this.id = Math.random().toString();
+        products.push(this);
+        fs.writeFile(p, JSON.stringify(products), err => {
+          console.log(err);
+        });
+      }
     });
   }
 
@@ -44,5 +56,16 @@ module.exports = class Product {
       const product = products.find(p => p.id===id);
       cb(product); 
     });
+  }
+
+  delete(){
+    getProductsFromFile(products => {
+        const existingProductIndex = products.findIndex(prod =>prod.id === this.id);
+        const updatedProducts = [...products];
+        let spliced = updatedProducts.splice(existingProductIndex, 1);
+        fs.writeFile(p, JSON.stringify(updatedProducts), err => {
+          console.log(err);
+        });
+      }); 
   }
 };
