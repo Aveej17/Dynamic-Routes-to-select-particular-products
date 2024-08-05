@@ -15,8 +15,12 @@ exports.postAddProduct = (req, res, next) => {
   const description = req.body.description;
   
   const product = new Product(title, imageUrl, description, price, null);
-  product.save();
-  res.redirect('/');
+  product.save()
+  .then(()=>{
+    res.redirect('/');
+  })
+  .catch(err=>console.log(err));
+  
 };
 
 exports.getEditProduct = (req, res, next) => {
@@ -59,24 +63,36 @@ exports.postEditProduct = (req, res, next) => {
 }
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll(products => {
+  Product.fetchAll()
+  .then(([products, fieldData])=>{
     res.render('admin/products', {
       prods: products,
       pageTitle: 'Admin Products',
       path: '/admin/products'
     });
-  });
+  })
+  .catch(err=>console.log(err));
 };
 
 
-
 exports.deleteProduct = (req, res, next) => {
+  console.log('Request Headers:', req.headers); // Log request headers
+  console.log('Request Body:', req.body); // Log the entire request body
+
   const prodId = req.body.productId;
-  const updatedTitle = req.body.title;
-  const updatedPrice = req.body.price;
-  const updatedImageUrl= req.body.imageUrl;
-  const updatedDesc = req.body.description;
-  const updatedProduct = new Product(updatedTitle,updatedImageUrl, updatedDesc, updatedPrice, prodId);
-  updatedProduct.delete();
-  res.redirect('/admin/products');
-}
+  console.log('Product ID to delete:', prodId); // Log the product ID
+
+  if (!prodId) {
+    console.log('Product ID is undefined or null');
+    return res.status(400).send('Product ID is missing');
+  }
+
+  Product.deleteById(prodId)
+    .then(() => {
+      res.redirect('/admin/products');
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).send('Failed to delete product');
+    });
+};
