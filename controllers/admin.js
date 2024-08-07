@@ -14,12 +14,27 @@ exports.postAddProduct = (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
   
-  const product = new Product(title, imageUrl, description, price, null);
-  product.save()
-  .then(()=>{
-    res.redirect('/');
-  })
-  .catch(err=>console.log(err));
+  // const product = new Product(title, imageUrl, description, price, null);
+  // product.save()
+  // .then(()=>{
+  //   res.redirect('/');
+  // })
+  // .catch(err=>console.log(err));
+  Product.create({
+    title:title,
+    price:price,
+    imageUrl:imageUrl,
+    description:description
+  }).then(
+    result =>{
+      // console.log(result);
+      console.log('Created a product SuccessFully');
+      
+    }
+  ).catch(err=>{
+    console.log("Error");
+    console.log(err);
+  });
   
 };
 
@@ -76,6 +91,7 @@ exports.getProducts = (req, res, next) => {
 
 
 exports.deleteProduct = (req, res, next) => {
+  console.log(req);
   console.log('Request Headers:', req.headers); // Log request headers
   console.log('Request Body:', req.body); // Log the entire request body
 
